@@ -30,7 +30,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { isValid: isTimeValidHook, loading: timeLoading, serverTime } = useTimeLock();
+  const { isValid: isTimeValidHook, loading: timeLoading, serverTime, timeSettings } = useTimeLock();
   const isTimeValid = isTimeValidHook;
 
 
@@ -245,7 +245,7 @@ export default function StudentDashboard() {
       setModal({ 
         show: true, 
         success: false, 
-        message: 'Waktu absensi telah ditutup. Absensi hanya diperbolehkan pukul 05:00 - 07:00 WIB.' 
+        message: `Waktu absensi telah ditutup. Absensi hanya diperbolehkan pukul ${timeSettings?.startTime || '05:00'} - ${timeSettings?.endTime || '07:00'} WIB.` 
       });
       return;
     }
@@ -345,8 +345,8 @@ export default function StudentDashboard() {
             <p className="text-xs font-medium text-[#86868B] uppercase tracking-wide">Cek Status</p>
             <p className="font-bold text-black dark:text-white text-sm md:text-base">
               {isTimeValid === false 
-                ? 'Waktu absensi hari ini telah ditutup (05:00 - 07:00 WIB).' 
-                : `Absensi hari ini belum direkam. Selesaikan sebelum pukul 07:00 WIB. (Sisa: ${countdown})`}
+                ? `Waktu absensi hari ini telah ditutup (${timeSettings?.startTime || '05:00'} - ${timeSettings?.endTime || '07:00'} WIB).` 
+                : `Absensi hari ini belum direkam. Selesaikan sebelum pukul ${timeSettings?.endTime || '07:00'} WIB. (Sisa: ${countdown})`}
             </p>
           </div>
         </div>

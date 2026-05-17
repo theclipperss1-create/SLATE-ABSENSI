@@ -221,3 +221,32 @@ export function subscribeToAnnouncement(callback: (text: string) => void) {
     }
   });
 }
+
+export async function getTimeLockSettings() {
+  try {
+    const docRef = doc(db, 'settings', 'time_lock');
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      const defaultSettings = { startTime: '05:00', endTime: '07:00' };
+      await setDoc(docRef, defaultSettings);
+      return defaultSettings;
+    }
+  } catch (error) {
+    console.error('Error getting time lock settings:', error);
+    return { startTime: '05:00', endTime: '07:00' };
+  }
+}
+
+export async function updateTimeLockSettings(settings: { startTime: string; endTime: string }) {
+  try {
+    const docRef = doc(db, 'settings', 'time_lock');
+    await setDoc(docRef, settings);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating time lock settings:', error);
+    return { success: false, error };
+  }
+}

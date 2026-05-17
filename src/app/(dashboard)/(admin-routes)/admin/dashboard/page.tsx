@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { subscribeToAllLogs, deleteAllLogs, seedDummyData, getSchedule, updateSchedule, setAnnouncement, subscribeToAnnouncement } from '@/lib/firebase/firestore';
+import { subscribeToAllLogs, deleteAllLogs, seedDummyData, getSchedule, updateSchedule, setAnnouncement, subscribeToAnnouncement, getTimeLockSettings, updateTimeLockSettings } from '@/lib/firebase/firestore';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Modal } from '@/components/ui/Modal';
@@ -15,6 +15,9 @@ export default function AdminDashboard() {
   const [schedule, setSchedule] = useState<any[]>([]);
   const [announcement, setAnnouncementText] = useState('');
   const [savingAnnouncement, setSavingAnnouncement] = useState(false);
+  const [startTime, setStartTime] = useState('05:00');
+  const [endTime, setEndTime] = useState('07:00');
+  const [savingTimeLock, setSavingTimeLock] = useState(false);
   const [modal, setModal] = useState<{ show: boolean; success: boolean; message: string }>({
     show: false,
     success: false,
@@ -47,6 +50,14 @@ export default function AdminDashboard() {
       setSchedule(fetchedSchedule);
     }
     fetchSchedule();
+    
+    // Fetch time lock settings
+    async function fetchTimeLock() {
+      const settings = await getTimeLockSettings();
+      setStartTime(settings.startTime);
+      setEndTime(settings.endTime);
+    }
+    fetchTimeLock();
 
     // Subscribe to announcement
     const unsubscribeAnn = subscribeToAnnouncement((text) => {
@@ -67,6 +78,17 @@ export default function AdminDashboard() {
       setModal({ show: true, success: true, message: 'Pengumuman berhasil diperbarui.' });
     } else {
       setModal({ show: true, success: false, message: 'Gagal memperbarui pengumuman.' });
+    }
+  };
+
+  const handleSaveTimeLock = async () => {
+    setSavingTimeLock(true);
+    const result = await updateTimeLockSettings({ startTime, endTime });
+    setSavingTimeLock(false);
+    if (result.success) {
+      setModal({ show: true, success: true, message: 'Pengaturan waktu absensi berhasil diperbarui.' });
+    } else {
+      setModal({ show: true, success: false, message: 'Gagal memperbarui pengaturan waktu.' });
     }
   };
 
@@ -420,28 +442,71 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Announcement Section */}
-      <div className="bg-white dark:bg-[#1D1D1F] rounded-2xl p-6 border border-[#E5E5EA] dark:border-[#3A3A3C] shadow-sm mb-10 print:hidden">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-black dark:text-white tracking-tight mt-0.5">Broadcast ke Siswa</h2>
+      {/* Announcement & Time Lock Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10 print:hidden">
+        {/* Announcement Section */}
+        <div className="lg:col-span-7 bg-white dark:bg-[#1D1D1F] rounded-2xl p-6 border border-[#E5E5EA] dark:border-[#3A3A3C] shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-black dark:text-white tracking-tight mt-0.5">Broadcast ke Siswa</h2>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-4">
+            <textarea
+              value={announcement}
+              onChange={(e) => setAnnouncementText(e.target.value)}
+              placeholder="Tulis pengumuman di sini..."
+              className="flex-1 p-4 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-xl text-sm border border-[#E5E5EA] dark:border-[#3A3A3C] focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-black dark:text-white"
+              rows={3}
+            />
+            <div className="flex flex-col justify-end">
+              <button
+                onClick={handleSaveAnnouncement}
+                disabled={savingAnnouncement}
+                className="h-10 px-6 bg-black dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {savingAnnouncement ? 'Menyimpan...' : 'Kirim'}
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex flex-col md:flex-row gap-4">
-          <textarea
-            value={announcement}
-            onChange={(e) => setAnnouncementText(e.target.value)}
-            placeholder="Tulis pengumuman di sini..."
-            className="flex-1 p-4 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-xl text-sm border border-[#E5E5EA] dark:border-[#3A3A3C] focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-black dark:text-white"
-            rows={3}
-          />
-          <div className="flex flex-col justify-end">
-            <button
-              onClick={handleSaveAnnouncement}
-              disabled={savingAnnouncement}
-              className="h-10 px-6 bg-black dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {savingAnnouncement ? 'Menyimpan...' : 'Kirim'}
-            </button>
+
+        {/* Time Lock Settings */}
+        <div className="lg:col-span-5 bg-white dark:bg-[#1D1D1F] rounded-2xl p-6 border border-[#E5E5EA] dark:border-[#3A3A3C] shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-black dark:text-white tracking-tight mt-0.5">Waktu Absensi</h2>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-[#86868B] uppercase tracking-wide">Mulai</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full h-10 mt-1 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-xl px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-black dark:text-white"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-medium text-[#86868B] uppercase tracking-wide">Selesai</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full h-10 mt-1 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-xl px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-black dark:text-white"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-2">
+              <button
+                onClick={handleSaveTimeLock}
+                disabled={savingTimeLock}
+                className="h-10 px-6 bg-black dark:bg-white text-white dark:text-black text-sm font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {savingTimeLock ? 'Menyimpan...' : 'Simpan'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
