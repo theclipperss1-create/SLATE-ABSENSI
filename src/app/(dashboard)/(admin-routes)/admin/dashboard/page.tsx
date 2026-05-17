@@ -17,7 +17,16 @@ export default function AdminDashboard() {
   const [savingAnnouncement, setSavingAnnouncement] = useState(false);
   const [startTime, setStartTime] = useState('05:00');
   const [endTime, setEndTime] = useState('07:00');
+  const [allowedDays, setAllowedDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [savingTimeLock, setSavingTimeLock] = useState(false);
+
+  const toggleDay = (dayIndex: number) => {
+    setAllowedDays(prev => 
+      prev.includes(dayIndex) 
+        ? prev.filter(d => d !== dayIndex) 
+        : [...prev, dayIndex]
+    );
+  };
   const [modal, setModal] = useState<{ show: boolean; success: boolean; message: string }>({
     show: false,
     success: false,
@@ -56,6 +65,7 @@ export default function AdminDashboard() {
       const settings = await getTimeLockSettings();
       setStartTime(settings.startTime);
       setEndTime(settings.endTime);
+      setAllowedDays(settings.days || [1, 2, 3, 4, 5]);
     }
     fetchTimeLock();
 
@@ -83,7 +93,7 @@ export default function AdminDashboard() {
 
   const handleSaveTimeLock = async () => {
     setSavingTimeLock(true);
-    const result = await updateTimeLockSettings({ startTime, endTime });
+    const result = await updateTimeLockSettings({ startTime, endTime, days: allowedDays });
     setSavingTimeLock(false);
     if (result.success) {
       setModal({ show: true, success: true, message: 'Pengaturan waktu absensi berhasil diperbarui.' });
@@ -495,6 +505,29 @@ export default function AdminDashboard() {
                   onChange={(e) => setEndTime(e.target.value)}
                   className="w-full h-10 mt-1 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-xl px-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white text-black dark:text-white"
                 />
+              </div>
+            </div>
+
+            {/* Days Selection */}
+            <div>
+              <label className="text-xs font-medium text-[#86868B] uppercase tracking-wide">Hari Aktif</label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((dayName, index) => {
+                  const isSelected = allowedDays.includes(index);
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => toggleDay(index)}
+                      className={`h-8 px-3 text-xs font-bold rounded-lg transition-colors ${
+                        isSelected 
+                          ? 'bg-black dark:bg-white text-white dark:text-black' 
+                          : 'bg-[#F5F5F7] dark:bg-[#3A3A3C] text-[#86868B]'
+                      }`}
+                    >
+                      {dayName}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             

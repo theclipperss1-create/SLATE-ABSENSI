@@ -5,7 +5,7 @@ export function useTimeLock() {
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [serverTime, setServerTime] = useState<string | null>(null);
-  const [timeSettings, setTimeSettings] = useState<{ startTime: string; endTime: string } | null>(null);
+  const [timeSettings, setTimeSettings] = useState<{ startTime: string; endTime: string; days: number[] } | null>(null);
 
   useEffect(() => {
     async function checkTime() {
@@ -21,13 +21,19 @@ export function useTimeLock() {
         
         const hours = data.hours;
         const minutes = data.minutes;
+        const day = data.day; // 0 (Sun) - 6 (Sat)
         
         // Convert to minutes from midnight for easier comparison
         const currentMins = hours * 60 + minutes;
         const startMins = startHour * 60 + startMinute;
         const endMins = endHour * 60 + endMinute;
         
-        const valid = currentMins >= startMins && currentMins < endMins;
+        const isTimeValid = currentMins >= startMins && currentMins < endMins;
+        
+        // Check if current day is in allowed days
+        const isDayValid = settings.days.includes(day);
+        
+        const valid = isTimeValid && isDayValid;
         
         setIsValid(valid);
         setServerTime(data.formatted);

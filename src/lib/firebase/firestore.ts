@@ -228,19 +228,24 @@ export async function getTimeLockSettings() {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return docSnap.data();
+      const data = docSnap.data();
+      // Ensure days exists for backward compatibility
+      if (!data.days) {
+        data.days = [1, 2, 3, 4, 5];
+      }
+      return data;
     } else {
-      const defaultSettings = { startTime: '05:00', endTime: '07:00' };
+      const defaultSettings = { startTime: '05:00', endTime: '07:00', days: [1, 2, 3, 4, 5] };
       await setDoc(docRef, defaultSettings);
       return defaultSettings;
     }
   } catch (error) {
     console.error('Error getting time lock settings:', error);
-    return { startTime: '05:00', endTime: '07:00' };
+    return { startTime: '05:00', endTime: '07:00', days: [1, 2, 3, 4, 5] };
   }
 }
 
-export async function updateTimeLockSettings(settings: { startTime: string; endTime: string }) {
+export async function updateTimeLockSettings(settings: { startTime: string; endTime: string; days: number[] }) {
   try {
     const docRef = doc(db, 'settings', 'time_lock');
     await setDoc(docRef, settings);
