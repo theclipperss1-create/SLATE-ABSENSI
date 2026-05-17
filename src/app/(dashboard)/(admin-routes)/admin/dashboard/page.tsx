@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { subscribeToAllLogs, deleteAllLogs, seedDummyData, getSchedule, updateSchedule, setAnnouncement, subscribeToAnnouncement, getTimeLockSettings, updateTimeLockSettings } from '@/lib/firebase/firestore';
