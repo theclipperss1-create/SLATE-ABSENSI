@@ -207,7 +207,7 @@ export default function AdminSiswa() {
         )}
       </div>
 
-      <Modal show={modal.show} success={modal.success} message={modal.message} onClose={() => setModal({ ...modal, show: false })} />
+      <Modal show={modal.show} success={modal.success} message={modal.message} title={modal.success ? 'Berhasil' : 'Pemberitahuan'} onClose={() => setModal({ ...modal, show: false })} />
 
       {/* Add Student Modal */}
       {showAddModal && (

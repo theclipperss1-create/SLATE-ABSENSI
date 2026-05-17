@@ -14,7 +14,7 @@ export function useTimeLock() {
         const data = await res.json();
         
         const settings = await getTimeLockSettings();
-        setTimeSettings(settings);
+        setTimeSettings(settings as any);
         
         const [startHour, startMinute] = settings.startTime.split(':').map(Number);
         const [endHour, endMinute] = settings.endTime.split(':').map(Number);

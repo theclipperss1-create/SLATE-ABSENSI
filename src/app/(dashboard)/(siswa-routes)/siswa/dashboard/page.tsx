@@ -266,20 +266,6 @@ export default function StudentDashboard() {
       // 1. Validasi Lokasi (Geofencing) - DISABLED
       const gps = { lat: 0, lng: 0 };
       setLocation(gps);
-      
-      /*
-      const distance = calculateDistance(gps.lat, gps.lng, SCHOOL_LAT, SCHOOL_LNG);
-      
-      if (distance > 100) {
-        setModal({ 
-          show: true, 
-          success: false, 
-          message: `Anda berada di luar radius sekolah (${Math.round(distance)} meter). Jarak maksimal adalah 100 meter.` 
-        });
-        setSubmitting(false);
-        return;
-      }
-      */
 
       // 2. Kirim ke Database
       const payload: any = {
@@ -360,6 +346,7 @@ export default function StudentDashboard() {
           <div className="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16 8H10C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12H14C15.1046 12 16 12.8954 16 14C16 15.1046 15.1046 16 14 16H8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" />
               <circle cx="18" cy="6" r="2" fill="currentColor" />
             </svg>
           </div>
@@ -483,10 +470,7 @@ export default function StudentDashboard() {
             {timeLoading ? 'MENGECEK WAKTU...' : submitting ? 'MEMPROSES...' : submitted ? 'DATA TERKUNCI' : 'KIRIM DATA ABSENSI KE SERVER'}
           </Button>
 
-          
-        </div>
-
-        </div>
+        </div> {/* Close Left Column */}
 
         {/* Right Column: Timetable & History (5 slots) */}
         <div className="md:col-span-5 space-y-8">
@@ -582,8 +566,8 @@ export default function StudentDashboard() {
           </div>
 
           <LogTracker history={history} />
-        </div>
-      </div>
+        </div> {/* Close Right Column */}
+      </div> {/* Close Grid Layout */}
 
       {/* Modal Alert */}
       <Modal
