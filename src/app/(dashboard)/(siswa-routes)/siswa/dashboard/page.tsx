@@ -263,10 +263,11 @@ export default function StudentDashboard() {
     setSubmitting(true);
     
     try {
-      // 1. Validasi Lokasi (Geofencing)
-      const gps = await getGPSLocation();
+      // 1. Validasi Lokasi (Geofencing) - DISABLED
+      const gps = { lat: 0, lng: 0 };
       setLocation(gps);
       
+      /*
       const distance = calculateDistance(gps.lat, gps.lng, SCHOOL_LAT, SCHOOL_LNG);
       
       if (distance > 100) {
@@ -278,6 +279,7 @@ export default function StudentDashboard() {
         setSubmitting(false);
         return;
       }
+      */
 
       // 2. Kirim ke Database
       const payload: any = {
