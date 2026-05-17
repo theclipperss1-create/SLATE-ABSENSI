@@ -102,9 +102,44 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredLogs = logs.filter(log =>
-    log.userName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const getCalendarDays = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    const days = [];
+    
+    const firstDayOfWeek = firstDay.getDay(); // 0 (Sun) - 6 (Sat)
+    const pad = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    
+    for (let i = 0; i < pad; i++) {
+      days.push(null);
+    }
+    
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    return days;
+  };
+
+  const calendarDays = getCalendarDays();
+
+  const filteredLogs = logs.filter(log => {
+    const matchesSearch = log.userName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (selectedDate) {
+      const formattedSelectedDate = selectedDate.toLocaleDateString('id-ID');
+      return matchesSearch && log.date === formattedSelectedDate;
+    }
+    
+    return matchesSearch;
+  });
 
   // Stats
   const totalSiswa = totalSiswaReal; // Dynamic total students in class
@@ -540,6 +575,88 @@ export default function AdminDashboard() {
                 {savingTimeLock ? 'Menyimpan...' : 'Simpan'}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Calendar Grid (GitHub Style) */}
+      <div className="bg-white dark:bg-[#1D1D1F] rounded-2xl border border-[#E5E5EA] dark:border-[#3A3A3C] p-6 shadow-sm mb-6 print:hidden">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-xs font-medium text-[#86868B] uppercase tracking-wide">Aktivitas Absensi</p>
+            <h2 className="text-xl font-bold text-black dark:text-white mt-0.5">Kalender Bulanan</h2>
+          </div>
+          {selectedDate && (
+            <button
+              onClick={() => setSelectedDate(null)}
+              className="text-sm font-medium text-black dark:text-white underline underline-offset-2 hover:text-[#86868B]"
+            >
+              Reset Filter
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <div className="grid grid-cols-7 gap-1.5 mb-2">
+            {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day) => (
+              <div key={day} className="text-center text-xs font-medium text-[#86868B] w-8">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1.5">
+            {calendarDays.map((date, index) => {
+              if (!date) {
+                return <div key={`empty-${index}`} className="w-8 h-8" />;
+              }
+
+              const formattedDate = date.toLocaleDateString('id-ID');
+              const logsOnDay = logs.filter(log => log.date === formattedDate);
+              const presentCount = logsOnDay.filter(log => log.status === 'Hadir').length;
+              
+              // Color intensity based on presence
+              let bgColor = 'bg-[#F5F5F7] dark:bg-[#3A3A3C]'; // 0 logs
+              if (presentCount > 15) {
+                bgColor = 'bg-black dark:bg-white';
+              } else if (presentCount > 5) {
+                bgColor = 'bg-[#86868B]';
+              } else if (presentCount > 0) {
+                bgColor = 'bg-[#E5E5EA] dark:bg-[#48484A]';
+              }
+
+              const isSelected = selectedDate && selectedDate.toLocaleDateString('id-ID') === formattedDate;
+
+              return (
+                <button
+                  key={formattedDate}
+                  onClick={() => setSelectedDate(date)}
+                  className={`w-8 h-8 rounded-lg transition-all ${bgColor} ${
+                    isSelected ? 'ring-2 ring-black dark:ring-white ring-offset-2 dark:ring-offset-[#1D1D1F]' : ''
+                  } hover:scale-105 flex flex-col items-center justify-center`}
+                  title={`${formattedDate}: ${presentCount} Hadir`}
+                >
+                  <span className={`text-xs font-bold ${
+                    presentCount > 15 
+                      ? 'text-white dark:text-black' 
+                      : presentCount > 5 
+                        ? 'text-white' 
+                        : 'text-[#1D1D1F] dark:text-white'
+                  }`}>
+                    {date.getDate()}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          
+          <div className="flex items-center gap-2 mt-4 text-xs text-[#86868B]">
+            <span>Kurang</span>
+            <div className="w-4 h-4 bg-[#F5F5F7] dark:bg-[#3A3A3C] rounded-sm"></div>
+            <div className="w-4 h-4 bg-[#E5E5EA] dark:bg-[#48484A] rounded-sm"></div>
+            <div className="w-4 h-4 bg-[#86868B] rounded-sm"></div>
+            <div className="w-4 h-4 bg-black dark:bg-white rounded-sm"></div>
+            <span>Lebih</span>
           </div>
         </div>
       </div>
