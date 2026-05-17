@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, disableNetwork } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -15,6 +15,12 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
+
+// Disable network during build to prevent timeouts
+if (process.env.NEXT_PHASE === 'phase-production-build') {
+  disableNetwork(db).catch(console.error);
+}
+
 const auth = getAuth(app);
 const storage = getStorage(app);
 
