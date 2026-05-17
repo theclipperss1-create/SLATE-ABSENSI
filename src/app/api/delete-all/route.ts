@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { deleteAllLogs } from '@/lib/firebase/firestore';
 import { NextResponse } from 'next/server';
 
