@@ -729,9 +729,9 @@ export default function AdminDashboard() {
                         }`}>
                           {log.status}
                         </span>
-                        {log.reason && (
+                        {(log as any).reason && (
                           <span className="text-xs text-[#86868B] mt-0.5">
-                            Ket: {log.reason}
+                            Ket: {(log as any).reason}
                           </span>
                         )}
                       </div>
