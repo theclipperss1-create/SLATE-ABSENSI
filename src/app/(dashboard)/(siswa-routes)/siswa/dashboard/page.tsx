@@ -357,7 +357,6 @@ export default function StudentDashboard() {
         </div>
         
         <div>
-          <p className="text-xs font-medium text-[#86868B] uppercase tracking-wide md:text-right">01 / KONSOL ABSENSI</p>
           <h2 className="text-lg font-bold text-black dark:text-white md:text-right">Dasbor Siswa</h2>
           {serverTime && (
             <p className="text-xs text-[#86868B] md:text-right mt-0.5">Waktu Server: {serverTime}</p>

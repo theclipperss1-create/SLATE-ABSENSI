@@ -16,7 +16,6 @@ interface TimetableProps {
 export function Timetable({ schedule }: TimetableProps) {
   return (
     <div>
-      <p className="text-xs font-medium text-[#86868B] uppercase tracking-wide mb-4">02 / JADWAL MATALATIH</p>
       <div className="bg-white dark:bg-[#1D1D1F] rounded-2xl border border-[#E5E5EA] dark:border-[#3A3A3C] overflow-hidden shadow-sm">
         {schedule.map((item) => (
           <div 
