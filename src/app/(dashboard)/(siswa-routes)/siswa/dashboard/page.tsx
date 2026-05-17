@@ -483,11 +483,8 @@ export default function StudentDashboard() {
             {timeLoading ? 'MENGECEK WAKTU...' : submitting ? 'MEMPROSES...' : submitted ? 'DATA TERKUNCI' : 'KIRIM DATA ABSENSI KE SERVER'}
           </Button>
 
-          {location && (
-            <p className="text-xs text-[#86868B] text-center">
-              Lokasi Anda: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-            </p>
-          )}
+          
+        </div>
 
         </div>
 
