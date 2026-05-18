@@ -36,7 +36,7 @@ export function LogTracker({ history }: LogTrackerProps) {
                 <td className="p-4 font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">{log.status}</td>
                 <td className="p-4">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#F5F5F7] dark:bg-[#3A3A3C] border border-[#E5E5EA] dark:border-[#3A3A3C]">
-                    <img src={log.img} alt="Selfie" className="w-full h-full object-cover" />
+                    <img src={log.img} alt="Selfie" className="w-full h-full object-cover grayscale" />
                   </div>
                 </td>
               </tr>

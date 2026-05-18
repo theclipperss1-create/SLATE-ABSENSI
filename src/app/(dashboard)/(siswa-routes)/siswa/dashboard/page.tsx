@@ -12,23 +12,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTimeLock } from '@/hooks/useTimeLock';
 import { submitAttendance, subscribeToStudentLogs, getSchedule, subscribeToAnnouncement } from '@/lib/firebase/firestore';
 
-// Titik tengah sekolah (contoh: Monas Jakarta)
-const SCHOOL_LAT = -6.175392;
-const SCHOOL_LNG = 106.827153;
-
-// Haversine Formula untuk menghitung jarak dalam meter
-function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371e3; // Radius bumi dalam meter
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  const d = R * c;
-  return d; // Jarak dalam meter
-}
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -49,7 +32,6 @@ export default function StudentDashboard() {
   const [selfie, setSelfie] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [modal, setModal] = useState<{ show: boolean; success: boolean; message: string }>({
     show: false,
     success: false,
@@ -206,28 +188,6 @@ export default function StudentDashboard() {
     }
   };
 
-  // Location Handler
-  const getGPSLocation = (): Promise<{ lat: number; lng: number }> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation tidak didukung oleh browser Anda.'));
-      } else {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            resolve({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (err) => {
-            reject(err);
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      }
-    });
-  };
-
   // Handlers
   const handleStatusSelect = (selectedStatus: 'Hadir' | 'Izin' | 'Sakit' | 'Alpa') => {
     if (submitted) return;
@@ -265,11 +225,7 @@ export default function StudentDashboard() {
     setSubmitting(true);
     
     try {
-      // 1. Validasi Lokasi (Geofencing) - DISABLED
-      const gps = { lat: 0, lng: 0 };
-      setLocation(gps);
-
-      // 2. Kirim ke Database
+      // Kirim ke Database
       const payload: any = {
         userId: user.id,
         userName: user.name,
@@ -277,7 +233,6 @@ export default function StudentDashboard() {
         time: serverTime || new Date().toLocaleTimeString('id-ID'),
         status: status,
         selfieUrl: selfie || '',
-        location: gps,
       };
 
       if (status === 'Izin' || status === 'Sakit') {
@@ -300,7 +255,7 @@ export default function StudentDashboard() {
       setModal({ 
         show: true, 
         success: false, 
-        message: `Gagal mendapatkan lokasi GPS: ${error.message || 'Izin ditolak'}.` 
+        message: `Terjadi kesalahan: ${error.message || 'Gagal mengirim data.'}` 
       });
     } finally {
       setSubmitting(false);
@@ -422,7 +377,7 @@ export default function StudentDashboard() {
                   <div className="relative w-full aspect-video bg-[#F5F5F7] rounded-xl overflow-hidden border border-[#E5E5EA]">
                     {selfie ? (
                       <div className="w-full h-full relative">
-                        <img src={selfie} alt="Selfie Preview" className="w-full h-full object-cover" />
+                        <img src={selfie} alt="Selfie Preview" className="w-full h-full object-cover grayscale" />
                         <button 
                           onClick={() => { setSelfie(null); setCameraOpen(true); }}
                           className="absolute top-3 right-3 bg-white/80 backdrop-blur-md text-black text-xs font-bold px-3 py-1.5 rounded-full hover:bg-white transition-all"
@@ -437,7 +392,7 @@ export default function StudentDashboard() {
                           ref={videoRef} 
                           autoPlay 
                           playsInline 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover grayscale"
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-end pb-6 bg-black/10">
                           <button

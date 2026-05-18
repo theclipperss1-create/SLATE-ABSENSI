@@ -15,8 +15,4 @@ export interface AttendanceLog {
   status: 'Hadir' | 'Izin' | 'Sakit' | 'Alpa';
   selfieUrl?: string;
   reason?: string;
-  location?: {
-    lat: number;
-    lng: number;
-  };
 }

@@ -257,13 +257,12 @@ export default function AdminDashboard() {
       return;
     }
 
-    const headers = ['Nama Siswa', 'Status', 'Tanggal', 'Waktu', 'Lokasi'];
+    const headers = ['Nama Siswa', 'Status', 'Tanggal', 'Waktu'];
     const rows = logs.map(log => [
       `"${log.userName}"`,
       `"${log.status}"`,
       `"${log.date}"`,
-      `"${log.time}"`,
-      log.location ? `"${log.location.lat},${log.location.lng}"` : '"-"'
+      `"${log.time}"`
     ]);
 
     const csvContent = [
@@ -714,7 +713,6 @@ export default function AdminDashboard() {
                   <th className="p-4 font-medium text-[#86868B] text-xs uppercase">Siswa</th>
                   <th className="p-4 font-medium text-[#86868B] text-xs uppercase">Status</th>
                   <th className="p-4 font-medium text-[#86868B] text-xs uppercase">Waktu</th>
-                  <th className="p-4 font-medium text-[#86868B] text-xs uppercase">Lokasi</th>
                   <th className="p-4 font-medium text-[#86868B] text-xs uppercase">Bukti</th>
                 </tr>
               </thead>
@@ -739,20 +737,6 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                     <td className="p-4 text-[#86868B]">{log.time}</td>
-                    <td className="p-4">
-                      {log.location ? (
-                        <a 
-                          href={`https://www.google.com/maps/search/?api=1&query=${log.location.lat},${log.location.lng}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-black dark:text-white underline underline-offset-2 hover:text-[#86868B] transition-colors"
-                        >
-                          Lihat Peta
-                        </a>
-                      ) : (
-                        <span className="text-xs text-[#86868B]">-</span>
-                      )}
-                    </td>
                     <td className="p-4">
                       {log.selfieUrl ? (
                         <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#F5F5F7] dark:bg-[#3A3A3C] border border-[#E5E5EA] dark:border-[#3A3A3C]">

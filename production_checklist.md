@@ -15,3 +15,8 @@ Dokumen ini mencantumkan hal-hal yang harus disesuaikan kembali sebelum aplikasi
 
 ## 4. Optimalisasi Performa
 - [ ] **Kompresi Gambar Selfie**: Pastikan ukuran file foto selfie yang diupload tidak terlalu besar untuk menghemat kuota Firebase Storage dan mempercepat proses submit.
+
+
+
+
+bikin akun admin
